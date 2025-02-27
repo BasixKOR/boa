@@ -32,30 +32,33 @@ This function returns the compiled bytecode of a function as a string,
 ------------------------Compiled Output: 'add'------------------------
 Location  Count    Handler    Opcode                     Operands
 
-000000    0000      none      PutLexicalValue            0000: 'x'
-000005    0001      none      PutLexicalValue            0001: 'y'
-000010    0002      none      RestParameterPop
-000011    0003      none      GetName                    0000: 'x'
-000016    0004      none      GetName                    0001: 'y'
-000021    0005      none      Add
-000022    0006      none      SetReturnValue
-000023    0007      none      Return
-000024    0008      none      Return
+000000    0000      none      CreateMappedArgumentsObject
+000001    0001      none      PutLexicalValue                           2: 0
+000004    0002      none      GetArgument                           0
+000006    0003      none      PutLexicalValue                           2: 1
+000009    0004      none      GetArgument                           1
+000011    0005      none      PutLexicalValue                           2: 2
+000014    0006      none      PushDeclarativeEnvironment                           2
+000016    0007      none      GetName                           0000: 'x'
+000018    0008      none      GetName                           0001: 'y'
+000020    0009      none      Add
+000021    0010      none      SetAccumulatorFromStack
+000022    0011      none      CheckReturn
+000023    0012      none      Return
+000024    0013      none      CheckReturn
+000025    0014      none      Return
 
-Literals:
-    <empty>
+Constants:
+    0000: [ENVIRONMENT] index: 1, bindings: 1
+    0001: [ENVIRONMENT] index: 2, bindings: 3
+    0002: [ENVIRONMENT] index: 3, bindings: 0
 
 Bindings:
     0000: x
     0001: y
 
-Functions:
-    <empty>
-
-Handlers:
-    <empty>
+Handlers: <empty>
 "
->>
 ```
 
 ### Function `$boa.function.trace(func, this, ...args)`
@@ -158,6 +161,30 @@ $boa.object.id(o)    // '0x7F5B3251B718'
 
 // Geting the address of the $boa object in memory
 $boa.object.id($boa) // '0x7F5B3251B5D8'
+```
+
+## Function `$boa.object.indexedStorageType(object)`
+
+This function returns indexed storage type.
+
+Example:
+
+```JavaScript
+let a = [1, 2]
+
+$boa.object.indexedStorageType(a) // 'DenseI32'
+
+a.push(0xdeadbeef)
+$boa.object.indexedStorageType(a) // 'DenseI32'
+
+a.push(0.5)
+$boa.object.indexedStorageType(a) // 'DenseF64'
+
+a.push("Hello")
+$boa.object.indexedStorageType(a) // 'DenseElement'
+
+a[100] = 100 // Make a hole
+$boa.object.indexedStorageType(a) // 'SparseElement'
 ```
 
 ## Module `$boa.optimizer`
@@ -285,4 +312,35 @@ function x() {
   return x();
 }
 x(); // RuntimeLimit: Maximum recursion limit 100 exceeded
+```
+
+## Module `$boa.string`
+
+This module contains helpful functions for getting information about a strings.
+
+### Function `$boa.string.storage(str)`
+
+Returns the string's inner storage type, if it's a well known string that is stored in the `STATIC_STRINGS` array in boa,
+then `"static"` is returned, `"heap"` otherwise.
+
+```JavaScript
+$boa.string.storage("push")             // "static"
+$boa.string.storage("specialFunction")  // "heap"
+```
+
+### Function `$boa.string.encoding(str)`
+
+Returns the string's inner encoding of the string.
+
+```JavaScript
+$boa.string.encoding("Greeting") // "latin1"
+$boa.string.encoding("挨拶")      // "utf16"
+```
+
+### Function `$boa.string.summary(str)`
+
+Returns an object with a short summary of the of the given string.
+
+```JavaScript
+$boa.string.summary("Greeting") // { storage: "heap", encoding: "latin1" }
 ```

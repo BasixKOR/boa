@@ -62,9 +62,6 @@ There are some pre-defined tasks in [tasks.json](.vscode/tasks.json)
 - Test - (there is no shortcut, you'll need to make one) - Runs `Cargo Test`.
   I personally set a shortcut of shift+cmd+option+T (or shift+ctrl+alt+T)
 
-If you don't want to install everything on your machine, you can use the Dockerfile.
-Start VSCode in container mode (you may need the docker container plugin) and use the Dockerfile.
-
 ## Testing
 
 Boa provides its own test suite, and can also run the official ECMAScript test suite. To run the Boa test
@@ -96,13 +93,23 @@ cargo run --release --bin boa_tester -- run -vv -d -s test/language/types/number
 
 ## Documentation
 
-We have specific documentation for development, updated on each commit to the `main` branch, with all the private
-methods visible here: <https://boajs.dev/boa/doc/>
+To build the development documentation, run:
+
+```shell
+cargo doc --all-features --document-private-items --workspace
+```
+
+This will also document all the dependencies on the workspace, which could be heavier in size.
+To only generate documentation for the workspace members, just add the `--no-deps` flag:
+
+```shell
+cargo doc --all-features --document-private-items --workspace --no-deps
+```
 
 ## Communication
 
-We have a Discord server, feel free to ask questions here:
-<https://discord.gg/tUFFk9Y>
+We have a Matrix space, feel free to ask questions here:
+<https://matrix.to/#/#boa:matrix.org>
 
 [issues]: https://github.com/boa-dev/boa/issues
 [rustup]: https://rustup.rs/

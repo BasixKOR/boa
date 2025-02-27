@@ -1,15 +1,15 @@
 name: EcmaScript official test suite (test262)
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - v*
   pull_request:
     branches:
       - main
+      - releases/**
   merge_group:
     types: [checks_requested]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   run_test262:
@@ -17,19 +17,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - name: Checkout the repository
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: true
           path: boa
-      - name: Install the Rust toolchain
-        uses: actions-rs/toolchain@v1.0.7
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-          override: true
-          profile: minimal
+
       - name: Cache cargo
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             target
@@ -37,13 +37,12 @@ jobs:
             ~/.cargo/registry
           key: ${{ runner.os }}-cargo-test262-${{ hashFiles('**/Cargo.lock') }}
 
-      # Run the test suite and upload the results
-      - name: Checkout GitHub pages
+      - name: Checkout the data repo
         uses: actions/checkout@v4
         with:
-          ref: gh-pages
-          path: gh-pages
-
+          repository: boa-dev/data
+          path: data
+          # Run the test suite.
       - name: Run the test262 test suite
         run: |
           cd boa
@@ -54,11 +53,11 @@ jobs:
       # Run the results comparison
       - name: Compare results
         if: github.event_name == 'pull_request'
-        id: compare-non-vm
+        id: compare
         shell: bash
         run: |
           cd boa
-          comment="$(./target/release/boa_tester compare ../gh-pages/test262/refs/heads/main/latest.json ../results/test262/pull/latest.json -m)"
+          comment="$(./target/release/boa_tester compare ../data/test262/refs/heads/main/latest.json ../results/test262/pull/latest.json -m)"
           echo "comment<<EOF" >> $GITHUB_OUTPUT
           echo "$comment" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -70,7 +69,7 @@ jobs:
 
       - name: Find Previous Comment
         if: github.event_name == 'pull_request'
-        uses: peter-evans/find-comment@v2
+        uses: peter-evans/find-comment@v3
         id: previous-comment
         with:
           issue-number: ${{ steps.pr-number.outputs.pr }}
@@ -78,44 +77,24 @@ jobs:
 
       - name: Update comment
         if: github.event_name == 'pull_request' && steps.previous-comment.outputs.comment-id
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@v4
         continue-on-error: true
         with:
           comment-id: ${{ steps.previous-comment.outputs.comment-id }}
           body: |
             ### Test262 conformance changes
 
-            ${{ steps.compare-non-vm.outputs.comment }}
-            ${{ steps.compare-vm.outputs.comment }}
+            ${{ steps.compare.outputs.comment }}
           edit-mode: replace
 
       - name: Write a new comment
         if: github.event_name == 'pull_request' && !steps.previous-comment.outputs.comment-id
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@v4
         continue-on-error: true
         with:
           issue-number: ${{ steps.pr-number.outputs.pr }}
           body: |
             ### Test262 conformance changes
 
-            ${{ steps.compare-non-vm.outputs.comment }}
-            ${{ steps.compare-vm.outputs.comment }}
+            ${{ steps.compare.outputs.comment }}
 
-      # Commit changes to GitHub pages.
-      - name: Commit files
-        if: github.event_name == 'push'
-        run: |
-          cp -r ./results/test262/* ./gh-pages/test262/
-          cd gh-pages
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add test262
-          git commit -m "Add new test262 results" -a
-          cd ..
-      - name: Upload results
-        if: github.event_name == 'push'
-        uses: ad-m/github-push-action@v0.8.0
-        with:
-          directory: gh-pages
-          branch: gh-pages
-          github_token: ${{ secrets.GITHUB_TOKEN }}

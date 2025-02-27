@@ -1,4 +1,4 @@
-commit = "a9821b4211aa9ae04eb31d344e967d3511a7a83e"
+commit = "8296db887368bbffa3379f995a1e628ddbe8421f"
 
 [ignored]
 # Not implemented yet:
@@ -9,14 +9,10 @@ features = [
 
     "FinalizationRegistry",
     "IsHTMLDDA",
-    "Atomics",
-    "change-array-by-copy",
     "symbols-as-weakmap-keys",
-    "intl-normative-optional",
     "Intl.DisplayNames",
     "Intl.RelativeTimeFormat",
     "Intl-enumeration",
-    "Intl.NumberFormat-v3",
 
     ### Pending proposals
 
@@ -26,26 +22,24 @@ features = [
     # https://github.com/tc39/proposal-regexp-legacy-features
     "legacy-regexp",
 
+    # Import Attributes
+    # https://github.com/tc39/proposal-import-attributes/
+    "import-attributes",
+
     # https://github.com/tc39/proposal-import-attributes
     "import-assertions",
+
+    # https://github.com/tc39/proposal-defer-import-eval
+    "import-defer",
+
+    # https://github.com/tc39/proposal-iterator-sequencing
+    "iterator-sequencing",
 
     # https://github.com/tc39/proposal-json-modules
     "json-modules",
 
-    # https://github.com/tc39/proposal-resizablearraybuffer
-    "resizable-arraybuffer",
-
-    # https://github.com/tc39/proposal-arraybuffer-transfer
-    "arraybuffer-transfer",
-
-    # https://github.com/tc39/proposal-temporal
-    "Temporal",
-
     # https://github.com/tc39/proposal-realms
     "ShadowRealm",
-
-    # https://github.com/tc39/proposal-array-grouping
-    "array-grouping",
 
     # https://github.com/tc39/proposal-intl-duration-format
     "Intl.DurationFormat",
@@ -56,23 +50,35 @@ features = [
     # https://github.com/tc39/proposal-duplicate-named-capturing-groups
     "regexp-duplicate-named-groups",
 
-    # https://github.com/tc39/proposal-array-from-async
-    "Array.fromAsync",
-
     # https://github.com/tc39/proposal-json-parse-with-source
     "json-parse-with-source",
+
+    # RegExp.escape
+    # https://github.com/tc39/proposal-regex-escaping
+    "RegExp.escape",
 
     # https://github.com/tc39/proposal-iterator-helpers
     "iterator-helpers",
 
+    # Set methods
+    # https://github.com/tc39/proposal-set-methods
+    "set-methods",
+
+    # Uint8Array Base64
+    # https://github.com/tc39/proposal-arraybuffer-base64
+    "uint8array-base64",
+
     ### Non-standard
     "caller",
-
-    ### RegExp tests that check individual codepoints.
-    ### They are not useful considering the cpu time they waste.
-    "regexp-unicode-property-escapes",
 ]
 
-# RegExp tests that check individual codepoints.
-# They are not useful considering the cpu time they waste.
-tests = ["CharacterClassEscapes", "NumberFormat"]
+tests = [
+    # Should throw an OOM error instead of filling the whole RAM.
+    "test/staging/sm/String/replace-math.js",
+    # Panics
+    "test/staging/sm/expressions/optional-chain-first-expression.js",
+    "test/staging/sm/regress/regress-554955-2.js",
+    "test/staging/sm/class/fields-static-class-name-binding-eval.js",
+    "test/staging/sm/regress/regress-554955-1.js",
+    "test/staging/sm/regress/regress-554955-3.js"
+]

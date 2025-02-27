@@ -25,9 +25,19 @@
     },
     {
       "type": "process",
-      "label": "Cargo Run",
+      "label": "Cargo Build boa_tester",
       "command": "cargo",
-      "args": ["run", "--bin", "boa", "./tests/js/test.js"],
+      "args": ["build", "-p", "boa_tester"],
+      "group": "build",
+      "presentation": {
+        "clear": true
+      }
+    },
+    {
+      "type": "process",
+      "label": "Run JS file",
+      "command": "cargo",
+      "args": ["run", "--bin", "boa", "${file}"],
       "group": {
         "kind": "build",
         "isDefault": true
@@ -44,20 +54,15 @@
     },
     {
       "type": "process",
-      "label": "Cargo Run (Profiler)",
+      "label": "Run JS file (Profiler)",
       "command": "cargo",
-      "args": [
-        "run",
-        "--features",
-        "boa_engine/profiler",
-        "../tests/js/test.js"
-      ],
+      "args": ["run", "--features", "profiler", "${file}"],
       "group": "build",
       "options": {
         "env": {
           "RUST_BACKTRACE": "full"
         },
-        "cwd": "${workspaceFolder}/boa_cli"
+        "cwd": "${workspaceFolder}/cli"
       },
       "presentation": {
         "clear": true
@@ -66,9 +71,9 @@
     },
     {
       "type": "process",
-      "label": "Run with VM trace",
+      "label": "Run JS file with VM trace",
       "command": "cargo",
-      "args": ["run", "--bin", "boa", "--", "-t", "./tests/js/test.js"],
+      "args": ["run", "--bin", "boa", "--", "-t", "${file}"],
       "group": "build",
       "presentation": {
         "clear": true
@@ -77,9 +82,9 @@
     },
     {
       "type": "process",
-      "label": "Get AST",
+      "label": "Get AST for JS file",
       "command": "cargo",
-      "args": ["run", "--bin", "boa", "--", "-a=Debug", "./tests/js/test.js"],
+      "args": ["run", "--bin", "boa", "--", "-a=Debug", "${file}"],
       "group": "build",
       "presentation": {
         "clear": true

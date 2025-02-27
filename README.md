@@ -2,11 +2,11 @@
 
 <p align="center">
   <a href="https://boajs.dev/">
-    <img
-      alt="Boa Logo"
-      src="./assets/logo.svg"
-      width="30%"
-    />
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./assets/logo_yellow.svg">
+      <source media="(prefers-color-scheme: light)" srcset="./assets/logo_black.svg">
+      <img alt="Boa logo" src="./assets/logo.png">
+    </picture>
     </a>
 </p>
 
@@ -18,20 +18,86 @@ Currently, it has support for some of the language.
 [![Crates.io](https://img.shields.io/crates/v/boa_engine.svg)](https://crates.io/crates/boa_engine)
 [![Docs.rs](https://docs.rs/boa_engine/badge.svg)](https://docs.rs/boa_engine)
 [![Discord](https://img.shields.io/discord/595323158140158003?logo=discord)](https://discord.gg/tUFFk9Y)
+[![Matrix](https://img.shields.io/matrix/boa:matrix.org)](https://matrix.to/#/#boa:matrix.org)
 
 [build_badge]: https://github.com/boa-dev/boa/actions/workflows/rust.yml/badge.svg?event=push&branch=main
 [build_link]: https://github.com/boa-dev/boa/actions/workflows/rust.yml?query=event%3Apush+branch%3Amain
 
 ## Live Demo (WASM)
 
-<https://boajs.dev/boa/playground/>
+Try out the engine now at the live WASM playground [here](https://boajs.dev/playground)!
 
-You can get more verbose errors when running from the command line.
+Prefer a CLI? Feel free to try out `boa_cli`!
+
+## Boa Crates
+
+Boa currently publishes and actively maintains the following crates:
+
+- **`boa_ast`** - Boa's ECMAScript Abstract Syntax Tree
+- **`boa_cli`** - Boa's CLI && REPL implementation
+- **`boa_engine`** - Boa's implementation of ECMAScript builtin objects and
+  execution
+- **`boa_gc`** - Boa's garbage collector
+- **`boa_interner`** - Boa's string interner
+- **`boa_parser`** - Boa's lexer and parser
+- **`boa_profiler`** - Boa's code profiler
+- **`boa_icu_provider`** - Boa's ICU4X data provider
+- **`boa_runtime`** - Boa's WebAPI features
+- **`boa_string`** - Boa's ECMAScript string implementation.
+
+Please note: the `Boa` and `boa_unicode` crates are deprecated.
+
+## Boa Engine Example
+
+To use `Boa` simply follow the below.
+
+Add the below dependency to your `Cargo.toml`:
+
+```toml
+[dependencies]
+boa_engine = "0.19.0"
+```
+
+Then in `main.rs`, copy the below:
+
+```rust
+use boa_engine::{Context, Source, JsResult};
+
+fn main() -> JsResult<()> {
+  let js_code = r#"
+      let two = 1 + 1;
+      let definitely_not_four = two + "2";
+
+      definitely_not_four
+  "#;
+
+  // Instantiate the execution context
+  let mut context = Context::default();
+
+  // Parse the source code
+  let result = context.eval(Source::from_bytes(js_code))?;
+
+  println!("{}", result.display());
+
+  Ok(())
+}
+
+```
+
+Now, all that's left to do is `cargo run`.
+
+Congrats! You've executed your first `JavaScript` using `Boa`!
+
+## Documentation
+
+For more information on `Boa`'s API. Feel free to check out our documentation.
+
+[**API Documentation**](https://docs.rs/boa_engine/latest/boa_engine/)
 
 ## Conformance
 
 To know how much of the _ECMAScript_ specification does Boa cover, you can check out results
-running the _ECMASCript Test262_ test suite [here](https://boajs.dev/boa/test262/).
+running the _ECMASCript Test262_ test suite [here](https://boajs.dev/conformance).
 
 ## Contributing
 
@@ -73,7 +139,7 @@ then go to `http://localhost:8080`.
 
 ## Command-line Options
 
-```
+```txt
 Usage: boa [OPTIONS] [FILE]...
 
 Arguments:
@@ -101,7 +167,7 @@ See [Milestones](https://github.com/boa-dev/boa/milestones).
 
 ## Benchmarks
 
-See [Benchmarks](https://boajs.dev/boa/dev/bench/).
+See [Benchmarks](https://boajs.dev/benchmarks).
 
 ## Profiling
 
@@ -113,7 +179,9 @@ See [CHANGELOG.md](./CHANGELOG.md).
 
 ## Communication
 
-Feel free to contact us on [Discord](https://discord.gg/tUFFk9Y).
+Feel free to contact us on [Matrix](https://matrix.to/#/#boa:matrix.org) if you have any questions.
+Contributor discussions take place on the same Matrix Space if you're interested in contributing.
+We also have a [Discord](https://discord.gg/tUFFk9Y) for any questions or issues.
 
 ## License
 
